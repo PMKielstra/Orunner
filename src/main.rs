@@ -121,7 +121,7 @@ fn routine_path(selected_profile: &mut config::Profile, profile_readout: &String
 fn routine_make_command(selected_profile: &config::Profile, shell_command: &Vec<String>) -> bool {
     let full_command = format!("{} {}", selected_profile.prefix, shell_command.join(" "));
     for path in &selected_profile.paths {
-        println!("cd \"{}\"\n echo \"{}\"\n {}", path, path, full_command);
+        println!("cd \"{}\"\n printf \"$(tput bold){}$(tput sgr0)\\n\"\n {}", path, path, full_command);
     }
     return false;
 }
