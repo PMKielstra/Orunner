@@ -30,6 +30,7 @@ pub enum Commands {
         subcommand: Option<SetClear>
     },
     /// Prepare a script to run a shell command at every path in a profile.  You should not run this -- use orc instead.
+    #[clap(trailing_var_arg=true)]
     MakeCommand {
         shell_command: Vec<String>
     }
