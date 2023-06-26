@@ -9,9 +9,9 @@ fn main() {
     let cli = cli::Cli::parse();
     let mut config = config::load();
 
-    let (selected_profile_name, profile_readout) = match &cli.profile {
-        None => (&config.default_profile, "default profile".to_string()),
-        Some(prof_name) => (prof_name, format!("profile {}", prof_name))
+    let (selected_profile_name, profile_readout, profile_readout_uppercase) = match &cli.profile {
+        None => (&config.default_profile, "default profile".to_string(), "Default profile".to_string()),
+        Some(prof_name) => (prof_name, format!("profile {}", prof_name), format!("Profile {}", prof_name))
     };
     let prof_binding = &mut config.profiles.get_mut(selected_profile_name);
     let selected_profile = match prof_binding.as_mut() {
@@ -22,8 +22,8 @@ fn main() {
     let dirty_config = match &cli.command {
         cli::Commands::Profile { subcommand } => routine_profile(&mut config, subcommand),
         cli::Commands::Path { subcommand } => routine_path(selected_profile, &profile_readout, subcommand),
+        cli::Commands::Prefix { subcommand } => routine_prefix(selected_profile, &profile_readout, &profile_readout_uppercase, subcommand),
         cli::Commands::MakeCommand { shell_command } => routine_make_command(selected_profile, shell_command),
-        _ => panic!("Not implemented")
     };
 
     if dirty_config {
@@ -113,6 +113,24 @@ fn routine_path(selected_profile: &mut config::Profile, profile_readout: &String
                 None => { println!("Path does not exist."); return false; }
                 Some(i) => { selected_profile.paths.remove(i); }
             }
+        }
+    }
+    return true;
+}
+
+fn routine_prefix(selected_profile: &mut config::Profile, profile_readout: &String, profile_readout_uppercase: &String, command: &Option<cli::SetClear>) -> bool {
+    match command {
+        None => {
+            println!("{} has {}", profile_readout_uppercase, if selected_profile.prefix == "" { "no prefix".to_string() } else { format!("prefix {}", selected_profile.prefix) });
+            return false;
+        }
+        Some(cli::SetClear::Set{ value }) => {
+            selected_profile.prefix = value.to_string();
+            println!("Set {} prefix to {}.", profile_readout, value);
+        }
+        Some(cli::SetClear::Clear) => {
+            selected_profile.prefix = "".to_string();
+            println!("Cleared {} prefix.", profile_readout)
         }
     }
     return true;
