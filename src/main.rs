@@ -9,9 +9,9 @@ fn main() {
     let cli = cli::Cli::parse();
     let mut config = config::load();
 
-    let (selected_profile_name, profile_readout, profile_readout_uppercase) = match &cli.profile {
-        None => (&config.default_profile, "default profile".to_string(), "Default profile".to_string()),
-        Some(prof_name) => (prof_name, format!("profile {}", prof_name), format!("Profile {}", prof_name))
+    let (selected_profile_name, profile_readout) = match &cli.profile {
+        None => (&config.default_profile, "default profile".to_string()),
+        Some(prof_name) => (prof_name, format!("profile {}", prof_name))
     };
     let prof_binding = &mut config.profiles.get_mut(selected_profile_name);
     let selected_profile = match prof_binding.as_mut() {
@@ -22,7 +22,7 @@ fn main() {
     let dirty_config = match &cli.command {
         cli::Commands::Profile { subcommand } => routine_profile(&mut config, subcommand),
         cli::Commands::Path { subcommand } => routine_path(selected_profile, &profile_readout, subcommand),
-        cli::Commands::Prefix { subcommand } => routine_prefix(selected_profile, &profile_readout, &profile_readout_uppercase, subcommand),
+        cli::Commands::Prefix { subcommand } => routine_prefix(selected_profile, &profile_readout, subcommand),
         cli::Commands::MakeCommand { shell_command } => routine_make_command(selected_profile, shell_command),
     };
 
@@ -118,10 +118,18 @@ fn routine_path(selected_profile: &mut config::Profile, profile_readout: &String
     return true;
 }
 
-fn routine_prefix(selected_profile: &mut config::Profile, profile_readout: &String, profile_readout_uppercase: &String, command: &Option<cli::SetClear>) -> bool {
+fn first_letter_uppercase(s: &mut str) {
+    if let Some(r) = s.get_mut(0..1) {
+        r.make_ascii_uppercase();
+    }
+}
+
+fn routine_prefix(selected_profile: &mut config::Profile, profile_readout: &String, command: &Option<cli::SetClear>) -> bool {
     match command {
         None => {
-            println!("{} has {}", profile_readout_uppercase, if selected_profile.prefix == "" { "no prefix".to_string() } else { format!("prefix {}", selected_profile.prefix) });
+            let mut uppercase_profile_readout = profile_readout.clone();
+            first_letter_uppercase(&mut uppercase_profile_readout);
+            println!("{} has {}", uppercase_profile_readout, if selected_profile.prefix == "" { "no prefix".to_string() } else { format!("prefix {}", selected_profile.prefix) });
             return false;
         }
         Some(cli::SetClear::Set{ value }) => {
