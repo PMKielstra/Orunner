@@ -5,6 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(author, version, about, long_about=None)]
 pub struct Cli {
+    /// Select a profile, or leave blank to use the default.
     #[arg(short, long)]
     pub profile: Option<String>,
 
@@ -24,7 +25,7 @@ pub enum Commands {
         #[command(subcommand)]
         subcommand: Option<AddRemovePath>
     },
-    /// View, set, or clear a profile's prefix.
+    /// View, set, or clear a profile's prefix.  The prefix is prepended to every command run.  One common prefix is "git".
     Prefix {
         #[command(subcommand)]
         subcommand: Option<SetClear>
@@ -42,11 +43,13 @@ pub enum EditProfile {
         /// Set this to be the new default profile.
         #[arg(short, long)]
         default: bool,
+
         name: String
     },
     Remove {
         name: String
     },
+    /// Set the global default profile.
     SetDefault {
         name: String
     }
@@ -54,13 +57,19 @@ pub enum EditProfile {
 
 #[derive(Subcommand)]
 pub enum AddRemovePath {
+    /// Add a path to the selected profile.
     Add {
         /// Add a path that may not exist.
         #[arg(long)]
         force: bool,
 
+        /// Add the path relatively.  Relative paths are evaluated at runtime based on the current working directory.
+        #[arg(long)]
+        add_relative: bool,
+
         path: PathBuf
     },
+    /// Remove a path from the selected profile.  Will match either absolute or relative paths.
     Remove {
         path: PathBuf
     }
