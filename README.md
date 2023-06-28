@@ -1,5 +1,5 @@
 # Orunner
-Run all your commands in all your folders.  Myrepos for generalists.
+Run all your commands in all your folders.  [Myrepos](https://github.com/RichiH/myrepos) for generalists.
 
 ## Installation
 Put `orunner` and `orc` somewhere in your path.  Alternatively, `cargo build` will get you `orunner`, and `orc` is just a shell script.
