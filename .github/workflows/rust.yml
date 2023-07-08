@@ -1,7 +1,6 @@
 name: Rust
 
 on:
-  workflow-dispatch
   push:
     tags:
       - "v*"
